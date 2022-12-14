@@ -16,7 +16,7 @@ public class Country {
 
     @Id
     @NotNull
-    @Column(name = "countryId")
+    @Column(name = "country_id")
     private String countryId;
 
     @NotNull
@@ -26,4 +26,7 @@ public class Country {
     @NotNull
     @Column(name = "country", length = 30)
     private String country;
+
+    @Column(name = "delete_status")
+    private int deleteStatus;
 }

@@ -45,17 +45,20 @@ public class CountryServiceImpl implements CountryService {
     @Override
     public void deleteCountry(String countryCode) throws Exception {
         this.checkCountryIdForUpdateAndDelete(countryCode);
-        countryRepository.deleteById(countryCode);
+        //countryRepository.deleteById(countryCode);
+        countryRepository.softDeleteProcess(countryCode);
     }
 
     private List<CountryResponseDto> buildResponseCountryReadFromModel(List<Country> countryList) {
         List<CountryResponseDto> responseDtoList = new ArrayList<>();
         for (int i = 0; i < countryList.size(); i++){
-            CountryResponseDto responseDto = CountryResponseDto.builder()
-                    .countryCode(countryList.get(i).getCountryCode())
-                    .country(countryList.get(i).getCountry())
-                    .build();
-            responseDtoList.add(responseDto);
+            if (countryList.get(i).getDeleteStatus() == 0){
+                CountryResponseDto responseDto = CountryResponseDto.builder()
+                        .countryCode(countryList.get(i).getCountryCode())
+                        .country(countryList.get(i).getCountry())
+                        .build();
+                responseDtoList.add(responseDto);
+            }
         }
         return responseDtoList;
     }
@@ -73,6 +76,7 @@ public class CountryServiceImpl implements CountryService {
                 .countryId(countryId)
                 .countryCode(requestDto.getCountryCode())
                 .country(requestDto.getCountry())
+                .deleteStatus(0)
                 .build();
         countryRepository.save(country);
         return country;
