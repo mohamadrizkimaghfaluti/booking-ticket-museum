@@ -2,6 +2,7 @@ package com.java.bookingticketmuseum.service.impl;
 
 import com.java.bookingticketmuseum.dto.BookingTicketRequestDto;
 import com.java.bookingticketmuseum.dto.BookingTicketResponseDto;
+import com.java.bookingticketmuseum.dto.DetailTransactionDto;
 import com.java.bookingticketmuseum.model.BookingTicket;
 import com.java.bookingticketmuseum.model.Country;
 import com.java.bookingticketmuseum.model.Customer;
@@ -13,10 +14,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
@@ -33,7 +32,7 @@ public class BookingTicketServiceImpl implements BookingTicketService {
 
     @Override
     public BookingTicketResponseDto createTransaction(BookingTicketRequestDto requestDto) throws Exception {
-        this.checkTicketCode(requestDto.getBookingTicketCode());
+        //this.checkTicketCode(requestDto.getBookingTicketCode());
         String ticketCode = generateAndCheckTicketCode(requestDto.getBookingTicketCode());
         BookingTicket ticket = buildModelTicketFromRequest(ticketCode, requestDto);
         BookingTicketResponseDto responseDto = buildResponseTicketFromModel(ticket);
@@ -48,17 +47,58 @@ public class BookingTicketServiceImpl implements BookingTicketService {
         return responseDtoList;
     }
 
+    @Override
+    public BookingTicketResponseDto updateTransaction(BookingTicketRequestDto requestDto)
+            throws Exception {
+        this.checkTicketIdForUpdate(requestDto.getBookingTicketCode());
+        BookingTicket updateBookingTicket = buildModelTicketFromRequest(requestDto
+                .getBookingTicketCode(), requestDto);
+        BookingTicketResponseDto responseDto = buildResponseTicketFromModel(updateBookingTicket);
+        return responseDto;
+    }
+
+    @Override
+    public DetailTransactionDto detailTransaction(String ticketCode) throws Exception {
+        this.checkTicketIdForUpdate(ticketCode);
+        DetailTransactionDto transactionDto = new DetailTransactionDto();
+        List<DetailTransactionDto> transactionDtoList = ticketRepository.getDetailTransaction(ticketCode);
+        if (transactionDtoList.isEmpty()){
+            throw new Exception("Transaction Not Found!");
+        } else {
+            transactionDto = setDetailTransaction(transactionDtoList);
+        }
+        return transactionDto;
+    }
+
+    private DetailTransactionDto setDetailTransaction(List<DetailTransactionDto> transactionDtoList) {
+        DetailTransactionDto transactionDto = new DetailTransactionDto();
+        for (DetailTransactionDto dto: transactionDtoList){
+            transactionDto.setBookingTicketCode(dto.getBookingTicketCode());
+            transactionDto.setBookingTicketDate(dto.getBookingTicketDate());
+            transactionDto.setForDate(dto.getForDate());
+            transactionDto.setTotalPrice(dto.getTotalPrice());
+            transactionDto.setCustomerName(dto.getCustomerName());
+            transactionDto.setCustomerAge(dto.getCustomerAge());
+            transactionDto.setCustomerAddress(dto.getCustomerAddress());
+            transactionDto.setCustomerPhoneNumber(dto.getCustomerPhoneNumber());
+            transactionDto.setCountry(dto.getCountry());
+        }
+        return transactionDto;
+    }
+
     private List<BookingTicketResponseDto> buildResponseReadTicketFromModel(List<BookingTicket> bookingTickets) {
         List<BookingTicketResponseDto> responseDtoList = new ArrayList<>();
         for (BookingTicket ticket : bookingTickets){
-            BookingTicketResponseDto responseDto = BookingTicketResponseDto.builder()
-                    .bookingTicketCode(ticket.getBookingTicketCode())
-                    .bookingTicketDate(ticket.getBookingTicketDate())
-                    .forDate(ticket.getForDate())
-                    .totalPrice(ticket.getTotalPrice())
-                    .customer(ticket.getCustomer())
-                    .build();
-            responseDtoList.add(responseDto);
+            if (ticket.getCustomer().getDeleteStatus() == 0){
+                BookingTicketResponseDto responseDto = BookingTicketResponseDto.builder()
+                        .bookingTicketCode(ticket.getBookingTicketCode())
+                        .bookingTicketDate(ticket.getBookingTicketDate())
+                        .forDate(ticket.getForDate())
+                        .totalPrice(ticket.getTotalPrice())
+                        .customer(ticket.getCustomer())
+                        .build();
+                responseDtoList.add(responseDto);
+            }
         }
         return responseDtoList;
     }
@@ -174,6 +214,21 @@ public class BookingTicketServiceImpl implements BookingTicketService {
         tempTicketCode2 = tempTicketCode;
         if (!tempTicketCode2.isEmpty() && tempTicketCode.equals(ticketCode)){
             throw new Exception("Ticket Code " + ticketCode + " already exists!");
+        }
+    }
+
+    private void checkTicketIdForUpdate(String ticketId) throws Exception {
+        String tempTicketId = "";
+        String tempTickedId2 = "";
+        List<BookingTicket> bookingTicketList = ticketRepository.findAll();
+        for (BookingTicket ticket : bookingTicketList){
+            if (ticket.getBookingTicketCode().equals(ticketId)){
+                tempTicketId = ticket.getBookingTicketCode();
+            }
+            tempTickedId2 = tempTicketId;
+        }
+        if (tempTickedId2.equals("") || tempTickedId2 == null){
+            throw new Exception("Ticked Code " + ticketId + " Not Found");
         }
     }
 

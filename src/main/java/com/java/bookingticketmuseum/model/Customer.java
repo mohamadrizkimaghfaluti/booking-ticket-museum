@@ -38,4 +38,7 @@ public class Customer {
     @OneToOne
     @JoinColumn(name = "country_code")
     private Country country;
+
+    @Column(name = "delete_status")
+    private int deleteStatus;
 }

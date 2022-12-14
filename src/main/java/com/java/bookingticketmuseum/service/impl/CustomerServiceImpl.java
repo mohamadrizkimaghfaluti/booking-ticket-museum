@@ -48,20 +48,23 @@ public class CustomerServiceImpl implements CustomerService {
     @Override
     public void deleteCustomer(String customerId) throws Exception {
         this.checkCustomerIdForUpdateAndDelete(customerId);
-        customerRepository.deleteById(customerId);
+        //customerRepository.deleteById(customerId);
+        customerRepository.softDeleteProcess(customerId);
     }
 
     private List<CustomerResponseDto> buildResponseReadFromModel(List<Customer> customerList) {
         List<CustomerResponseDto> responseDtoList = new ArrayList<>();
         for (Customer customer : customerList){
-            CustomerResponseDto responseDto = CustomerResponseDto.builder()
-                    .customerName(customer.getCustomerName())
-                    .customerAge(customer.getCustomerAge())
-                    .customerAddress(customer.getCustomerAddress())
-                    .customerPhoneNumber(customer.getCustomerPhoneNumber())
-                    .country(customer.getCountry())
-                    .build();
-            responseDtoList.add(responseDto);
+            if (customer.getDeleteStatus() == 0){
+                CustomerResponseDto responseDto = CustomerResponseDto.builder()
+                        .customerName(customer.getCustomerName())
+                        .customerAge(customer.getCustomerAge())
+                        .customerAddress(customer.getCustomerAddress())
+                        .customerPhoneNumber(customer.getCustomerPhoneNumber())
+                        .country(customer.getCountry())
+                        .build();
+                responseDtoList.add(responseDto);
+            }
         }
         return responseDtoList;
     }
@@ -87,6 +90,7 @@ public class CustomerServiceImpl implements CustomerService {
                 .customerAddress(requestDto.getCustomerAddress())
                 .customerPhoneNumber(requestDto.getCustomerPhoneNumber())
                 .country(country)
+                .deleteStatus(0)
                 .build();
         Customer saveCustomer = customerRepository.save(customer);
         return saveCustomer;
