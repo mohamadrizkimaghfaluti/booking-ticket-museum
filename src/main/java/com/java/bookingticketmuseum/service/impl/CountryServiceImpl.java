@@ -5,6 +5,8 @@ import com.java.bookingticketmuseum.dto.CountryResponseDto;
 import com.java.bookingticketmuseum.model.Country;
 import com.java.bookingticketmuseum.repository.CountryRepository;
 import com.java.bookingticketmuseum.service.CountryService;
+import lombok.AllArgsConstructor;
+import lombok.NoArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -12,6 +14,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+@AllArgsConstructor
+@NoArgsConstructor
 @Service
 public class CountryServiceImpl implements CountryService {
     @Autowired
@@ -63,7 +67,7 @@ public class CountryServiceImpl implements CountryService {
         return responseDtoList;
     }
 
-    private CountryResponseDto buildResponseCountryFromModel(Country country) {
+    public CountryResponseDto buildResponseCountryFromModel(Country country) {
         CountryResponseDto responseDto = CountryResponseDto.builder()
                 .countryCode(country.getCountryCode())
                 .country(country.getCountry())
@@ -71,7 +75,7 @@ public class CountryServiceImpl implements CountryService {
         return responseDto;
     }
 
-    private Country buildModelCountryFromRequest(String countryId, CountryRequestDto requestDto) {
+    public Country buildModelCountryFromRequest(String countryId, CountryRequestDto requestDto) {
         Country country = Country.builder()
                 .countryId(countryId)
                 .countryCode(requestDto.getCountryCode())
@@ -82,7 +86,7 @@ public class CountryServiceImpl implements CountryService {
         return country;
     }
 
-    private String generateAndCheckCountryId(String countryId) throws Exception {
+    public String generateAndCheckCountryId(String countryId) throws Exception {
         this.checkCountryId(countryId);
         String resultCountryId = null;
         if (countryId == null || countryId.equals("")){
@@ -103,7 +107,7 @@ public class CountryServiceImpl implements CountryService {
         }
     }
 
-    private void checkCountryIdForUpdateAndDelete(String countryId) throws Exception {
+    public void checkCountryIdForUpdateAndDelete(String countryId) throws Exception {
         String tempCountry1 = "";
         String tempCountry2 = "";
         List<Country> countryList = countryRepository.findAll();
@@ -118,7 +122,7 @@ public class CountryServiceImpl implements CountryService {
         }
     }
 
-    private void checkCountryCode(String countryCode) throws Exception {
+    public void checkCountryCode(String countryCode) throws Exception {
         String tempCountryCode = "";
         String tempCountryCode2 = "";
         List<Country> countryList = countryRepository.findAll();
