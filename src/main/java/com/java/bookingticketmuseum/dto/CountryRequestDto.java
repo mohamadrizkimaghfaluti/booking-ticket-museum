@@ -1,12 +1,12 @@
 package com.java.bookingticketmuseum.dto;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 @Getter
 @Setter
+@AllArgsConstructor
+@NoArgsConstructor
+@Builder
 public class CountryRequestDto {
     private String countryId;
     private String countryCode;

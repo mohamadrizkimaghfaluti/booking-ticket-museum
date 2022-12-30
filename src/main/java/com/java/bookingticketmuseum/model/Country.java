@@ -29,4 +29,5 @@ public class Country {
 
     @Column(name = "delete_status")
     private int deleteStatus;
+
 }
