@@ -53,7 +53,7 @@ public class CountryServiceImpl implements CountryService {
         countryRepository.softDeleteProcess(countryCode);
     }
 
-    private List<CountryResponseDto> buildResponseCountryReadFromModel(List<Country> countryList) {
+    public List<CountryResponseDto> buildResponseCountryReadFromModel(List<Country> countryList) {
         List<CountryResponseDto> responseDtoList = new ArrayList<>();
         for (int i = 0; i < countryList.size(); i++){
             if (countryList.get(i).getDeleteStatus() == 0){
@@ -97,7 +97,7 @@ public class CountryServiceImpl implements CountryService {
         return resultCountryId;
     }
 
-    private void checkCountryId(String countryId) throws Exception {
+    public void checkCountryId(String countryId) throws Exception {
         List<Country> countryList = countryRepository.findAll();
         for (Country country : countryList){
             if (country.getCountryId().equals(countryId)
