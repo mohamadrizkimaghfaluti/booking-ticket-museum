@@ -88,9 +88,9 @@ public class CountryServiceImplTest {
         Country country = countryService.buildModelCountryFromRequest(countryId, requestDto);
 
         Assertions.assertNotNull(country.getCountryId());
-        Assertions.assertEquals(country.getCountryCode(), "ID");
-        Assertions.assertEquals(country.getCountry(), "Indo");
-        Assertions.assertEquals(country.getDeleteStatus(), 0);
+        Assertions.assertEquals("ID", country.getCountryCode());
+        Assertions.assertEquals("Indo", country.getCountry());
+        Assertions.assertEquals(0, country.getDeleteStatus());
 
         Mockito.verify(countryRepository, Mockito.times(1))
                 .save(country);
@@ -104,8 +104,8 @@ public class CountryServiceImplTest {
 
         CountryResponseDto responseDto = countryService.buildResponseCountryFromModel(country);
 
-        Assertions.assertEquals(responseDto.getCountryCode(), "ID");
-        Assertions.assertEquals(responseDto.getCountry(), "Indo");
+        Assertions.assertEquals("ID", responseDto.getCountryCode());
+        Assertions.assertEquals("Indo", responseDto.getCountry());
     }
 
     @Test
@@ -122,8 +122,8 @@ public class CountryServiceImplTest {
 
         List<CountryResponseDto> responseDtoList = countryService.readCountry();
 
-        Assertions.assertEquals(responseDtoList.get(0), new CountryResponseDto("ID", "Indo"));
-        Assertions.assertEquals(responseDtoList.get(1), new CountryResponseDto("IN", "Indi"));
+        Assertions.assertEquals(new CountryResponseDto("ID", "Indo"), responseDtoList.get(0));
+        Assertions.assertEquals(new CountryResponseDto("IN", "Indi"), responseDtoList.get(1));
 
         Mockito.verify(countryRepository, Mockito.times(1)).findAll();
     }
@@ -148,8 +148,8 @@ public class CountryServiceImplTest {
 
         CountryResponseDto responseDto = countryService.updateCountry(requestDto);
 
-        Assertions.assertEquals(responseDto.getCountryCode(), "SG");
-        Assertions.assertEquals(responseDto.getCountry(), "Singapore");
+        Assertions.assertEquals("SG", responseDto.getCountryCode());
+        Assertions.assertEquals("Singapore", responseDto.getCountry());
 
     }
 
@@ -186,6 +186,43 @@ public class CountryServiceImplTest {
 
         Mockito.verify(countryRepository, Mockito.times(1))
                 .softDeleteProcess("1");
+    }
+
+    @Test
+    @DisplayName("Method Test: buildResponseCountryReadFromModel()")
+    void buildResponseCountryReadFromModelTest() {
+        List<Country> countryList = new ArrayList<>();
+        Country country = new Country("1", "ID", "Indo", 0);
+        Country country2 = new Country("2", "IN", "Indi", -1);
+        Country country3 = new Country("3", "SG", "Singapore", -1);
+
+        countryList.add(country);
+        countryList.add(country2);
+        countryList.add(country3);
+
+        List<CountryResponseDto> dto = countryService.buildResponseCountryReadFromModel(countryList);
+
+        Assertions.assertEquals(1, dto.size());
+
+    }
+
+    @Test
+    @DisplayName("Method Test: checkCountryId()")
+    void checkCountryIdTest() {
+        List<Country> countryList = new ArrayList<>();
+        Country country = new Country("1", "ID", "Indo", 0);
+        Country country2 = new Country("2", "IN", "Indi", 0);
+        Country country3 = new Country("3", "SG", "Singapore", 0);
+
+        countryList.add(country);
+        countryList.add(country2);
+        countryList.add(country3);
+
+        Mockito.when(countryRepository.findAll()).thenReturn(countryList);
+
+        Assertions.assertThrows(Exception.class, () -> {
+            countryService.checkCountryId("3");
+        });
     }
 
 }
